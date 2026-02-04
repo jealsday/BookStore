@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head th:replace="~{fragments/layout :: head('BookStore - Erreur')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="card p-5 text-center">
+                <div class="empty-icon mx-auto" style="background: var(--danger-soft);">
+                    <i class="bi bi-exclamation-triangle" style="color: var(--danger);"></i>
+                </div>
+                <h2 style="font-size:1.2rem; font-weight:700; margin:1rem 0 0.25rem;" th:text="${status} ?: 'Erreur'">Erreur</h2>
+                <p style="color: var(--text-secondary); font-size:0.875rem;" th:text="${message} ?: 'Une erreur inattendue est survenue.'">
+                    Description
+                </p>
+                <a href="/books" class="btn btn-primary-custom mt-3">
+                    <i class="bi bi-arrow-left me-1"></i>Retour aux livres
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

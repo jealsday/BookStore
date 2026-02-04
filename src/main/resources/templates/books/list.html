@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="fr">
+<head th:replace="~{fragments/layout :: head('BookStore - Livres')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4">
+
+    <!-- Success alert -->
+    <div th:if="${successMessage}" class="alert-soft-success d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <!-- Page header -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between page-header">
+        <div>
+            <h1>Livres</h1>
+            <p>Votre collection de livres</p>
+        </div>
+        <a sec:authorize="hasRole('ADMIN')" href="/books/new" class="btn btn-primary-custom mt-3 mt-md-0">
+            <i class="bi bi-plus-lg me-1"></i>Nouveau livre
+        </a>
+    </div>
+
+    <!-- Search + stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-8">
+            <form th:action="@{/books}" method="get">
+                <div class="search-wrapper">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" name="keyword" th:value="${keyword}" class="search-input"
+                           placeholder="Rechercher un titre ou un auteur...">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="stat-block">
+                    <div class="stat-value" th:text="${totalBooks}">0</div>
+                    <div class="stat-label">livres au total</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search results info -->
+    <div th:if="${keyword != null and !keyword.isEmpty()}" class="d-flex align-items-center justify-content-between mb-3">
+        <span style="font-size:0.85rem; color: var(--text-secondary);">
+            <span th:text="${#lists.size(books)}">0</span> résultat(s) pour
+            "<strong th:text="${keyword}" style="color: var(--text);"></strong>"
+        </span>
+        <a href="/books" class="btn btn-ghost btn-sm">
+            <i class="bi bi-x me-1"></i>Effacer
+        </a>
+    </div>
+
+    <!-- Books table -->
+    <div th:if="${!books.isEmpty()}" class="card" style="overflow:hidden;">
+        <div class="table-responsive">
+            <table class="table-clean">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">#</th>
+                        <th>Titre</th>
+                        <th>Auteur</th>
+                        <th>Prix</th>
+                        <th style="width:140px; text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="book, iter : ${books}">
+                        <td style="color: var(--text-light); font-weight:500;" th:text="${iter.index + 1}">1</td>
+                        <td>
+                            <a th:href="@{/books/{id}(id=${book.id})}" class="book-title" th:text="${book.titre}">Titre</a>
+                        </td>
+                        <td style="color: var(--text-secondary);" th:text="${book.auteur}">Auteur</td>
+                        <td>
+                            <span class="badge-price" th:text="${#numbers.formatDecimal(book.prix, 0, 'COMMA', 0, 'POINT')} + ' CFA'">0 CFA</span>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-1 flex-nowrap">
+                                <a th:href="@{/books/{id}(id=${book.id})}"
+                                   class="action-btn btn-soft-primary" title="Voir">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a sec:authorize="hasRole('ADMIN')"
+                                   th:href="@{/books/edit/{id}(id=${book.id})}"
+                                   class="action-btn btn-soft-warning" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a sec:authorize="hasRole('ADMIN')"
+                                   th:href="@{/books/delete/{id}(id=${book.id})}"
+                                   class="action-btn btn-soft-danger"
+                                   title="Supprimer"
+                                   onclick="return confirm('Voulez-vous vraiment supprimer ce livre ?');">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div th:if="${books.isEmpty()}" class="card">
+        <div class="empty-state">
+            <div class="empty-icon"><i class="bi bi-journal-x"></i></div>
+            <h3 th:if="${keyword == null or keyword.isEmpty()}">Aucun livre pour le moment</h3>
+            <h3 th:if="${keyword != null and !keyword.isEmpty()}">Aucun résultat</h3>
+            <p th:if="${keyword == null or keyword.isEmpty()}" sec:authorize="hasRole('ADMIN')">Ajoutez votre premier livre pour commencer.</p>
+            <p th:if="${keyword == null or keyword.isEmpty()}" sec:authorize="hasRole('USER') and !hasRole('ADMIN')">Aucun livre disponible pour le moment.</p>
+            <p th:if="${keyword != null and !keyword.isEmpty()}">Essayez avec un autre mot-clé.</p>
+            <a sec:authorize="hasRole('ADMIN')" th:if="${keyword == null or keyword.isEmpty()}" href="/books/new" class="btn btn-primary-custom mt-2">
+                <i class="bi bi-plus-lg me-1"></i>Ajouter un livre
+            </a>
+            <a th:if="${keyword != null and !keyword.isEmpty()}" href="/books" class="btn btn-ghost mt-2">
+                <i class="bi bi-arrow-left me-1"></i>Tous les livres
+            </a>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="fr">
+<head th:replace="~{fragments/layout :: head('BookStore - Détails')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <!-- Back link -->
+            <nav class="mb-3" style="font-size:0.85rem;">
+                <a href="/books" style="color: var(--primary); text-decoration:none; font-weight:500;">
+                    <i class="bi bi-arrow-left me-1"></i>Retour aux livres
+                </a>
+            </nav>
+
+            <!-- Detail card -->
+            <div class="card" style="overflow:hidden;">
+
+                <!-- Header -->
+                <div class="detail-header">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
+                         style="width:56px; height:56px; background:rgba(255,255,255,0.15);">
+                        <i class="bi bi-book fs-4"></i>
+                    </div>
+                    <h2 th:text="${book.titre}">Titre du livre</h2>
+                    <p th:text="${book.auteur}">Auteur</p>
+                </div>
+
+                <!-- Body -->
+                <div class="p-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-4">
+                            <div style="text-align:center;">
+                                <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-light); font-weight:600;">ID</div>
+                                <div style="font-size:1.25rem; font-weight:700; color:var(--text);" th:text="'#' + ${book.id}">#1</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div style="text-align:center;">
+                                <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-light); font-weight:600;">Auteur</div>
+                                <div style="font-size:0.9rem; font-weight:500; color:var(--text); margin-top:0.2rem;" th:text="${book.auteur}">Auteur</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div style="text-align:center;">
+                                <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-light); font-weight:600;">Prix</div>
+                                <div style="margin-top:0.2rem;">
+                                    <span class="badge-price" th:text="${#numbers.formatDecimal(book.prix, 0, 'COMMA', 0, 'POINT')} + ' CFA'">0 CFA</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Separator -->
+                    <hr style="border-color: var(--border-light); margin: 0 0 1rem;">
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2">
+                        <a href="/books" class="btn btn-ghost flex-grow-1">
+                            <i class="bi bi-arrow-left me-1"></i>Retour
+                        </a>
+                        <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/edit/{id}(id=${book.id})}" class="btn btn-soft-warning flex-grow-1">
+                            <i class="bi bi-pencil me-1"></i>Modifier
+                        </a>
+                        <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/delete/{id}(id=${book.id})}"
+                           class="btn btn-soft-danger flex-grow-1"
+                           onclick="return confirm('Voulez-vous vraiment supprimer ce livre ?');">
+                            <i class="bi bi-trash3 me-1"></i>Supprimer
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

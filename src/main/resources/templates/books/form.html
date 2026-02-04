@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head th:replace="~{fragments/layout :: head(${isEdit} ? 'BookStore - Modifier' : 'BookStore - Nouveau livre')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <!-- Breadcrumb -->
+            <nav class="mb-3" style="font-size:0.85rem;">
+                <a href="/books" style="color: var(--primary); text-decoration:none; font-weight:500;">
+                    <i class="bi bi-arrow-left me-1"></i>Retour aux livres
+                </a>
+            </nav>
+
+            <!-- Form card -->
+            <div class="card p-4">
+
+                <!-- Header -->
+                <div class="mb-4">
+                    <h1 style="font-size:1.4rem; font-weight:700; margin:0;"
+                        th:text="${isEdit} ? 'Modifier le livre' : 'Nouveau livre'">Titre</h1>
+                    <p style="color: var(--text-secondary); font-size:0.875rem; margin:0.25rem 0 0;"
+                       th:text="${isEdit} ? 'Modifiez les informations ci-dessous.' : 'Remplissez les informations du livre.'">
+                        Description
+                    </p>
+                </div>
+
+                <form th:action="@{/books/save}" th:object="${book}" method="post" novalidate>
+
+                    <input type="hidden" th:if="${isEdit}" th:field="*{id}">
+
+                    <!-- Titre -->
+                    <div class="mb-3">
+                        <label for="titre" class="form-label">Titre</label>
+                        <input type="text" id="titre" th:field="*{titre}"
+                               class="form-control" th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid'"
+                               placeholder="Ex : Le Parachutage">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('titre')}" th:errors="*{titre}">
+                            Erreur
+                        </div>
+                    </div>
+
+                    <!-- Auteur -->
+                    <div class="mb-3">
+                        <label for="auteur" class="form-label">Auteur</label>
+                        <input type="text" id="auteur" th:field="*{auteur}"
+                               class="form-control" th:classappend="${#fields.hasErrors('auteur')} ? 'is-invalid'"
+                               placeholder="Ex : Norbert ZONGO">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('auteur')}" th:errors="*{auteur}">
+                            Erreur
+                        </div>
+                    </div>
+
+                    <!-- Prix -->
+                    <div class="mb-4">
+                        <label for="prix" class="form-label">Prix (CFA)</label>
+                        <input type="number" id="prix" th:field="*{prix}" step="0.01" min="0.01" max="150000"
+                               class="form-control" th:classappend="${#fields.hasErrors('prix')} ? 'is-invalid'"
+                               placeholder="Ex : 10000">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('prix')}" th:errors="*{prix}">
+                            Erreur
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-custom flex-grow-1">
+                            <i th:if="${!isEdit}" class="bi bi-plus-lg me-1"></i>
+                            <i th:if="${isEdit}" class="bi bi-check-lg me-1"></i>
+                            <span th:text="${isEdit} ? 'Enregistrer' : 'Ajouter'">Sauvegarder</span>
+                        </button>
+                        <a href="/books" class="btn btn-ghost">Annuler</a>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+</body>
+</html>

@@ -23,7 +23,7 @@ import java.util.List;
  * - MethodArgumentNotValidException (400 - validation)
  * - Exception générale (500)
  */
-@ControllerAdvice
+@ControllerAdvice(basePackages = "bf.isge.gsn.controller")
 @Slf4j
 public class GlobalExceptionHandler {
 
