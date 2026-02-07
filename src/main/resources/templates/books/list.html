@@ -20,7 +20,7 @@
             <p>Votre collection de livres</p>
         </div>
         <div class="d-flex gap-2 mt-3 mt-md-0">
-            <a sec:authorize="hasRole('ADMIN')" href="/books/search-advanced" class="btn btn-ghost">
+            <a href="/books/search-advanced" class="btn btn-ghost">
                 <i class="bi bi-funnel me-1"></i>Recherche avancée
             </a>
             <a sec:authorize="hasRole('ADMIN')" href="/books/new" class="btn btn-primary-custom">

@@ -91,7 +91,7 @@ public class BookWebController {
     /**
      * Affiche le formulaire de modification d'un livre
      */
-    @GetMapping("/edit/{id}")
+    @GetMapping("/edit/{id:\\d+}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Book book = bookService.getBookById(id);
         model.addAttribute("book", book);
@@ -102,7 +102,7 @@ public class BookWebController {
     /**
      * Supprime un livre et redirige vers la liste
      */
-    @GetMapping("/delete/{id}")
+    @GetMapping("/delete/{id:\\d+}")
     public String deleteBook(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         bookService.deleteBook(id);
         redirectAttributes.addFlashAttribute("successMessage", "Le livre a été supprimé avec succès.");
@@ -112,7 +112,7 @@ public class BookWebController {
     /**
      * Affiche les détails d'un livre
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public String showBookDetails(@PathVariable Long id, Model model) {
         Book book = bookService.getBookById(id);
         model.addAttribute("book", book);

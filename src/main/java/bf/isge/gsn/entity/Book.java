@@ -33,7 +33,7 @@ public class Book {
 
     @NotBlank(message = "Le titre ne peut pas être vide")
     @Size(min = 1, max = 255, message = "Le titre doit contenir entre 1 et 255 caractères")
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 255, unique = true)
     @Schema(description = "Titre du livre", example = "Le Parachutage")
     private String titre;
 

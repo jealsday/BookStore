@@ -1,0 +1,8 @@
+2026-02-07 20:40:58.134831Z jdbc[14]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Erreur de syntaxe dans l'instruction SQL "[*]PASSWORD"; attendu "PREPARE"
+Syntax error in SQL statement "[*]PASSWORD"; expected "PREPARE"; SQL statement:
+PASSWORD [42001-232]
+2026-02-07 20:41:03.849303Z jdbc[14]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Erreur de syntaxe dans l'instruction SQL "[*]PASSWORD APP_USERS"; attendu "PREPARE"
+Syntax error in SQL statement "[*]PASSWORD APP_USERS"; expected "PREPARE"; SQL statement:
+PASSWORD APP_USERS [42001-232]
