@@ -51,39 +51,8 @@
     </div>
 
     <!-- Quick filters (ADMIN only) -->
-    <div sec:authorize="hasRole('ADMIN')" class="mb-4">
-        <div class="card p-3">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">Prix minimum (CFA)</label>
-                    <input type="number" id="minPrice" class="form-control form-control-sm" placeholder="Ex: 5000">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">Prix maximum (CFA)</label>
-                    <input type="number" id="maxPrice" class="form-control form-control-sm" placeholder="Ex: 15000">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">Titre</label>
-                    <input type="text" id="filterTitre" class="form-control form-control-sm" placeholder="Titre">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">Auteur</label>
-                    <input type="text" id="filterAuteur" class="form-control form-control-sm" placeholder="Auteur">
-                </div>
-                <div class="col-12">
-                    <div class="d-flex gap-2">
-                        <button onclick="applyFilters()" class="btn btn-primary-custom btn-sm">
-                            <i class="bi bi-funnel me-1"></i>Filtrer
-                        </button>
-                        <button onclick="clearFilters()" class="btn btn-ghost btn-sm">
-                            <i class="bi bi-x-circle me-1"></i>Réinitialiser
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    
+    
     <!-- Search results info -->
     <div th:if="${keyword != null and !keyword.isEmpty()}" class="d-flex align-items-center justify-content-between mb-3">
         <span style="font-size:0.85rem; color: var(--text-secondary);">

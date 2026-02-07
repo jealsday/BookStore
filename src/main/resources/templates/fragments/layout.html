@@ -360,12 +360,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navContent">
             <ul class="navbar-nav ms-auto gap-1">
-                <li class="nav-item">
-                    <a class="nav-link" href="/books"><i class="bi bi-grid-1x2 me-1"></i>Livres</a>
-                </li>
-                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" href="/books/new"><i class="bi bi-plus me-1"></i>Ajouter</a>
-                </li>
+
                 <li class="nav-item ms-2" style="display:flex; align-items:center;">
                     <span style="font-size:0.8rem; color:var(--text-light); margin-right:0.5rem;"
                           sec:authentication="name"></span>
@@ -383,15 +378,19 @@
 <!-- ============ FOOTER ============ -->
 <footer th:fragment="footer">
     <div class="container text-center">
-        <p class="mb-2">BookStore &middot; Spring Boot &middot; Spring Data JPA &middot; Thymeleaf &middot; ISGE 2026</p>
-        <div sec:authorize="hasRole('ADMIN')" class="mt-2">
-            <a href="/swagger-ui.html" class="text-decoration-none me-3" style="font-size:0.9rem; color:var(--text-light);">
-                <i class="bi bi-braces me-1"></i>API
-            </a>
-            <a href="/h2-console" class="text-decoration-none" style="font-size:0.9rem; color:var(--text-light);">
-                <i class="bi bi-database me-1"></i>Console
-            </a>
-        </div>
+        <p class="mb-0" style="font-size:0.8rem; color:var(--text-light);">
+            BookStore &middot; Spring Boot &middot; Spring Data JPA &middot; Thymeleaf &middot; ISGE 2026
+            <span sec:authorize="hasRole('ADMIN')">
+                &middot; 
+                <a href="/swagger-ui.html" class="text-decoration-none" style="color:var(--text-light);">
+                    <i class="bi bi-braces me-1"></i>API
+                </a>
+                &middot; 
+                <a href="/h2-console" class="text-decoration-none" style="color:var(--text-light);">
+                    <i class="bi bi-database me-1"></i>Console
+                </a>
+            </span>
+        </p>
     </div>
 </footer>
 <!-- ============ SCRIPTS ============ -->
