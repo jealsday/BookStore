@@ -19,9 +19,14 @@
             <h1>Livres</h1>
             <p>Votre collection de livres</p>
         </div>
-        <a sec:authorize="hasRole('ADMIN')" href="/books/new" class="btn btn-primary-custom mt-3 mt-md-0">
-            <i class="bi bi-plus-lg me-1"></i>Nouveau livre
-        </a>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a sec:authorize="hasRole('ADMIN')" href="/books/search-advanced" class="btn btn-ghost">
+                <i class="bi bi-funnel me-1"></i>Recherche avancée
+            </a>
+            <a sec:authorize="hasRole('ADMIN')" href="/books/new" class="btn btn-primary-custom">
+                <i class="bi bi-plus-lg me-1"></i>Nouveau livre
+            </a>
+        </div>
     </div>
 
     <!-- Search + stats -->
@@ -45,6 +50,40 @@
         </div>
     </div>
 
+    <!-- Quick filters (ADMIN only) -->
+    <div sec:authorize="hasRole('ADMIN')" class="mb-4">
+        <div class="card p-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">Prix minimum (CFA)</label>
+                    <input type="number" id="minPrice" class="form-control form-control-sm" placeholder="Ex: 5000">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">Prix maximum (CFA)</label>
+                    <input type="number" id="maxPrice" class="form-control form-control-sm" placeholder="Ex: 15000">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">Titre</label>
+                    <input type="text" id="filterTitre" class="form-control form-control-sm" placeholder="Titre">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size:0.75rem; margin-bottom:0.25rem;">Auteur</label>
+                    <input type="text" id="filterAuteur" class="form-control form-control-sm" placeholder="Auteur">
+                </div>
+                <div class="col-12">
+                    <div class="d-flex gap-2">
+                        <button onclick="applyFilters()" class="btn btn-primary-custom btn-sm">
+                            <i class="bi bi-funnel me-1"></i>Filtrer
+                        </button>
+                        <button onclick="clearFilters()" class="btn btn-ghost btn-sm">
+                            <i class="bi bi-x-circle me-1"></i>Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Search results info -->
     <div th:if="${keyword != null and !keyword.isEmpty()}" class="d-flex align-items-center justify-content-between mb-3">
         <span style="font-size:0.85rem; color: var(--text-secondary);">
@@ -56,8 +95,16 @@
         </a>
     </div>
 
+    <!-- Loading indicator -->
+    <div id="loadingIndicator" class="card p-4 text-center" style="display:none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3 mb-0" style="color:var(--text-secondary);">Recherche en cours...</p>
+    </div>
+
     <!-- Books table -->
-    <div th:if="${!books.isEmpty()}" class="card" style="overflow:hidden;">
+    <div id="booksTable" th:if="${!books.isEmpty()}" class="card" style="overflow:hidden;">
         <div class="table-responsive">
             <table class="table-clean">
                 <thead>
@@ -69,7 +116,7 @@
                         <th style="width:140px; text-align:center;">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="booksTableBody">
                     <tr th:each="book, iter : ${books}">
                         <td style="color: var(--text-light); font-weight:500;" th:text="${iter.index + 1}">1</td>
                         <td>
@@ -106,7 +153,7 @@
     </div>
 
     <!-- Empty state -->
-    <div th:if="${books.isEmpty()}" class="card">
+    <div id="emptyState" th:if="${books.isEmpty()}" class="card">
         <div class="empty-state">
             <div class="empty-icon"><i class="bi bi-journal-x"></i></div>
             <h3 th:if="${keyword == null or keyword.isEmpty()}">Aucun livre pour le moment</h3>
@@ -127,6 +174,175 @@
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <div th:replace="~{fragments/layout :: scripts}"></div>
+
+<script>
+// Fonctions de filtrage dynamique (utilise l'API REST)
+function applyFilters() {
+    const minPrice = document.getElementById('minPrice').value;
+    const maxPrice = document.getElementById('maxPrice').value;
+    const titre = document.getElementById('filterTitre').value;
+    const auteur = document.getElementById('filterAuteur').value;
+
+    // Afficher le loader
+    showLoading();
+
+    let apiUrl = '/api/books/all';
+    let params = new URLSearchParams();
+
+    // Recherche combinée titre ET auteur
+    if (titre && auteur) {
+        apiUrl = '/api/books/search/titre-auteur';
+        params.append('titre', titre);
+        params.append('auteur', auteur);
+    }
+    // Recherche par titre seulement
+    else if (titre) {
+        apiUrl = '/api/books/search/titre';
+        params.append('titre', titre);
+    }
+    // Recherche par auteur seulement
+    else if (auteur) {
+        apiUrl = '/api/books/search/auteur';
+        params.append('auteur', auteur);
+    }
+    // Recherche par prix minimum
+    else if (minPrice && !maxPrice) {
+        apiUrl = '/api/books/search/min-price';
+        params.append('prix', minPrice);
+    }
+    // Recherche par prix maximum
+    else if (maxPrice && !minPrice) {
+        apiUrl = '/api/books/search/max-price';
+        params.append('prix', maxPrice);
+    }
+
+    const fullUrl = params.toString() ? `${apiUrl}?${params.toString()}` : apiUrl;
+
+    fetch(fullUrl)
+        .then(response => response.json())
+        .then(data => {
+            let books = Array.isArray(data) ? data : (data.content || []);
+            
+            // Filtrer par prix si les deux limites sont définies
+            if (minPrice && maxPrice) {
+                books = books.filter(book => 
+                    book.prix >= parseFloat(minPrice) && book.prix <= parseFloat(maxPrice)
+                );
+            }
+
+            hideLoading();
+            displayBooks(books);
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            hideLoading();
+            alert('Erreur lors de la recherche. Veuillez réessayer.');
+        });
+}
+
+function clearFilters() {
+    document.getElementById('minPrice').value = '';
+    document.getElementById('maxPrice').value = '';
+    document.getElementById('filterTitre').value = '';
+    document.getElementById('filterAuteur').value = '';
+    window.location.href = '/books';
+}
+
+function displayBooks(books) {
+    const tbody = document.getElementById('booksTableBody');
+    const table = document.getElementById('booksTable');
+    const emptyState = document.getElementById('emptyState');
+
+    if (books.length === 0) {
+        if (table) table.style.display = 'none';
+        if (!emptyState) {
+            const mainContainer = document.querySelector('main .container');
+            const emptyDiv = document.createElement('div');
+            emptyDiv.id = 'emptyState';
+            emptyDiv.className = 'card';
+            emptyDiv.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="bi bi-journal-x"></i></div>
+                    <h3>Aucun résultat</h3>
+                    <p>Essayez avec d'autres critères de recherche.</p>
+                    <button onclick="clearFilters()" class="btn btn-ghost mt-2">
+                        <i class="bi bi-arrow-left me-1"></i>Réinitialiser
+                    </button>
+                </div>
+            `;
+            mainContainer.appendChild(emptyDiv);
+        } else {
+            emptyState.style.display = 'block';
+        }
+        return;
+    }
+
+    if (emptyState) emptyState.style.display = 'none';
+    if (table) table.style.display = 'block';
+
+    tbody.innerHTML = books.map((book, index) => `
+        <tr>
+            <td style="color: var(--text-light); font-weight:500;">${index + 1}</td>
+            <td>
+                <a href="/books/${book.id}" class="book-title">${escapeHtml(book.titre)}</a>
+            </td>
+            <td style="color: var(--text-secondary);">${escapeHtml(book.auteur)}</td>
+            <td>
+                <span class="badge-price">${formatPrice(book.prix)} CFA</span>
+            </td>
+            <td>
+                <div class="d-flex justify-content-center gap-1 flex-nowrap">
+                    <a href="/books/${book.id}" class="action-btn btn-soft-primary" title="Voir">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="/books/edit/${book.id}" class="action-btn btn-soft-warning" title="Modifier">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="/books/delete/${book.id}" 
+                       class="action-btn btn-soft-danger" 
+                       title="Supprimer"
+                       onclick="return confirm('Voulez-vous vraiment supprimer ce livre ?');">
+                        <i class="bi bi-trash3"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function showLoading() {
+    const loader = document.getElementById('loadingIndicator');
+    const table = document.getElementById('booksTable');
+    const emptyState = document.getElementById('emptyState');
+    
+    if (table) table.style.display = 'none';
+    if (emptyState) emptyState.style.display = 'none';
+    if (loader) loader.style.display = 'block';
+}
+
+function hideLoading() {
+    const loader = document.getElementById('loadingIndicator');
+    if (loader) loader.style.display = 'none';
+}
+
+function formatPrice(price) {
+    return new Intl.NumberFormat('fr-FR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(price);
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+</script>
 
 </body>
 </html>

@@ -49,6 +49,14 @@ public class BookWebController {
     }
 
     /**
+     * Affiche la page de recherche avancée (ADMIN uniquement)
+     */
+    @GetMapping("/search-advanced")
+    public String showAdvancedSearch() {
+        return "books/search-advanced";
+    }
+
+    /**
      * Affiche le formulaire d'ajout d'un nouveau livre
      */
     @GetMapping("/new")

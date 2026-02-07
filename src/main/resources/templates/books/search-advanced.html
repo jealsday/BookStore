@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="fr">
+<head th:replace="~{fragments/layout :: head('BookStore - Recherche avancée')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container py-4">
+
+    <!-- Breadcrumb -->
+    <nav class="mb-3" style="font-size:0.85rem;">
+        <a href="/books" style="color: var(--primary); text-decoration:none; font-weight:500;">
+            <i class="bi bi-arrow-left me-1"></i>Retour aux livres
+        </a>
+    </nav>
+
+    <!-- Page header -->
+    <div class="page-header mb-4">
+        <h1><i class="bi bi-funnel me-2"></i>Recherche avancée</h1>
+        <p>Utilisez les filtres ci-dessous pour rechercher des livres spécifiques</p>
+    </div>
+
+    <!-- Advanced search form -->
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card p-4" style="position:sticky; top:20px;">
+                <h5 class="mb-3" style="font-size:1rem; font-weight:600;">Critères de recherche</h5>
+                
+                <!-- Titre -->
+                <div class="mb-3">
+                    <label for="searchTitre" class="form-label">
+                        <i class="bi bi-search me-1"></i>Titre
+                    </label>
+                    <input type="text" id="searchTitre" class="form-control" 
+                           placeholder="Ex: Parachutage">
+                </div>
+
+                <!-- Auteur -->
+                <div class="mb-3">
+                    <label for="searchAuteur" class="form-label">
+                        <i class="bi bi-person me-1"></i>Auteur
+                    </label>
+                    <input type="text" id="searchAuteur" class="form-control" 
+                           placeholder="Ex: Norbert ZONGO">
+                </div>
+
+                <hr style="border-color: var(--border-light);">
+
+                <!-- Prix minimum -->
+                <div class="mb-3">
+                    <label for="searchMinPrice" class="form-label">
+                        <i class="bi bi-currency-exchange me-1"></i>Prix minimum (CFA)
+                    </label>
+                    <input type="number" id="searchMinPrice" class="form-control" 
+                           placeholder="Ex: 5000" min="0">
+                </div>
+
+                <!-- Prix maximum -->
+                <div class="mb-3">
+                    <label for="searchMaxPrice" class="form-label">
+                        <i class="bi bi-currency-exchange me-1"></i>Prix maximum (CFA)
+                    </label>
+                    <input type="number" id="searchMaxPrice" class="form-control" 
+                           placeholder="Ex: 15000" min="0">
+                </div>
+
+                <hr style="border-color: var(--border-light);">
+
+                <!-- Buttons -->
+                <div class="d-grid gap-2">
+                    <button onclick="searchAdvanced()" class="btn btn-primary-custom">
+                        <i class="bi bi-search me-1"></i>Rechercher
+                    </button>
+                    <button onclick="resetSearch()" class="btn btn-ghost">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Réinitialiser
+                    </button>
+                </div>
+
+                <!-- Stats -->
+                <div class="mt-4 p-3" style="background:var(--bg); border-radius:var(--radius-sm);">
+                    <div style="font-size:0.75rem; color:var(--text-light); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">
+                        Résultats
+                    </div>
+                    <div id="resultsCount" style="font-size:1.5rem; font-weight:700; color:var(--primary);">
+                        -
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <!-- Loading -->
+            <div id="loadingResults" class="card p-5 text-center" style="display:none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+                <p class="mt-3 mb-0" style="color:var(--text-secondary);">Recherche en cours...</p>
+            </div>
+
+            <!-- Results -->
+            <div id="searchResults">
+                <div class="card">
+                    <div class="empty-state" style="padding:3rem 2rem;">
+                        <div class="empty-icon"><i class="bi bi-search"></i></div>
+                        <h3>Commencez votre recherche</h3>
+                        <p>Utilisez les filtres à gauche pour trouver des livres</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+<script>
+let allBooks = [];
+
+// Fonction de recherche avancée
+async function searchAdvanced() {
+    const titre = document.getElementById('searchTitre').value.trim();
+    const auteur = document.getElementById('searchAuteur').value.trim();
+    const minPrice = document.getElementById('searchMinPrice').value;
+    const maxPrice = document.getElementById('searchMaxPrice').value;
+
+    // Validation
+    if (!titre && !auteur && !minPrice && !maxPrice) {
+        alert('Veuillez renseigner au moins un critère de recherche');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        let books = [];
+
+        // Cas 1: Recherche combinée titre ET auteur
+        if (titre && auteur) {
+            const response = await fetch(`/api/books/search/titre-auteur?titre=${encodeURIComponent(titre)}&auteur=${encodeURIComponent(auteur)}`);
+            const data = await response.json();
+            books = data.content || [];
+        }
+        // Cas 2: Recherche par titre uniquement
+        else if (titre) {
+            const response = await fetch(`/api/books/search/titre?titre=${encodeURIComponent(titre)}`);
+            books = await response.json();
+        }
+        // Cas 3: Recherche par auteur uniquement
+        else if (auteur) {
+            const response = await fetch(`/api/books/search/auteur?auteur=${encodeURIComponent(auteur)}`);
+            books = await response.json();
+        }
+        // Cas 4: Recherche par prix minimum
+        else if (minPrice && !maxPrice) {
+            const response = await fetch(`/api/books/search/min-price?prix=${minPrice}`);
+            books = await response.json();
+        }
+        // Cas 5: Recherche par prix maximum
+        else if (maxPrice && !minPrice) {
+            const response = await fetch(`/api/books/search/max-price?prix=${maxPrice}`);
+            books = await response.json();
+        }
+        // Cas 6: Recherche par plage de prix
+        else if (minPrice && maxPrice) {
+            const response = await fetch(`/api/books/all`);
+            const allData = await response.json();
+            books = allData.filter(book => 
+                book.prix >= parseFloat(minPrice) && book.prix <= parseFloat(maxPrice)
+            );
+        }
+
+        // Appliquer les filtres de prix si nécessaire
+        if ((titre || auteur) && (minPrice || maxPrice)) {
+            books = books.filter(book => {
+                const matchMin = !minPrice || book.prix >= parseFloat(minPrice);
+                const matchMax = !maxPrice || book.prix <= parseFloat(maxPrice);
+                return matchMin && matchMax;
+            });
+        }
+
+        allBooks = books;
+        hideLoading();
+        displayResults(books);
+
+    } catch (error) {
+        console.error('Erreur:', error);
+        hideLoading();
+        alert('Une erreur est survenue lors de la recherche');
+    }
+}
+
+function displayResults(books) {
+    const container = document.getElementById('searchResults');
+    const countEl = document.getElementById('resultsCount');
+    
+    countEl.textContent = books.length;
+
+    if (books.length === 0) {
+        container.innerHTML = `
+            <div class="card">
+                <div class="empty-state" style="padding:3rem 2rem;">
+                    <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+                    <h3>Aucun résultat</h3>
+                    <p>Aucun livre ne correspond à vos critères</p>
+                    <button onclick="resetSearch()" class="btn btn-ghost mt-2">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Nouvelle recherche
+                    </button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    const cardsHTML = books.map(book => `
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1" style="font-weight:600; font-size:0.95rem;">
+                                <a href="/books/${book.id}" class="book-title">${escapeHtml(book.titre)}</a>
+                            </h6>
+                            <p class="mb-2" style="font-size:0.85rem; color:var(--text-secondary);">
+                                <i class="bi bi-person me-1"></i>${escapeHtml(book.auteur)}
+                            </p>
+                        </div>
+                        <span class="badge-price">${formatPrice(book.prix)} CFA</span>
+                    </div>
+                    <div class="d-flex gap-1 mt-3">
+                        <a href="/books/${book.id}" class="btn btn-soft-primary btn-sm flex-grow-1">
+                            <i class="bi bi-eye me-1"></i>Voir
+                        </a>
+                        <a href="/books/edit/${book.id}" class="btn btn-soft-warning btn-sm flex-grow-1">
+                            <i class="bi bi-pencil me-1"></i>Modifier
+                        </a>
+                        <a href="/books/delete/${book.id}" 
+                           class="btn btn-soft-danger btn-sm"
+                           onclick="return confirm('Supprimer ce livre ?');"
+                           title="Supprimer">
+                            <i class="bi bi-trash3"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    container.innerHTML = `<div class="row">${cardsHTML}</div>`;
+}
+
+function resetSearch() {
+    document.getElementById('searchTitre').value = '';
+    document.getElementById('searchAuteur').value = '';
+    document.getElementById('searchMinPrice').value = '';
+    document.getElementById('searchMaxPrice').value = '';
+    document.getElementById('resultsCount').textContent = '-';
+    
+    const container = document.getElementById('searchResults');
+    container.innerHTML = `
+        <div class="card">
+            <div class="empty-state" style="padding:3rem 2rem;">
+                <div class="empty-icon"><i class="bi bi-search"></i></div>
+                <h3>Commencez votre recherche</h3>
+                <p>Utilisez les filtres à gauche pour trouver des livres</p>
+            </div>
+        </div>
+    `;
+}
+
+function showLoading() {
+    document.getElementById('loadingResults').style.display = 'block';
+    document.getElementById('searchResults').style.display = 'none';
+}
+
+function hideLoading() {
+    document.getElementById('loadingResults').style.display = 'none';
+    document.getElementById('searchResults').style.display = 'block';
+}
+
+function formatPrice(price) {
+    return new Intl.NumberFormat('fr-FR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(price);
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Permettre la recherche avec la touche Entrée
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = ['searchTitre', 'searchAuteur', 'searchMinPrice', 'searchMaxPrice'];
+    inputs.forEach(id => {
+        document.getElementById(id).addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchAdvanced();
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>
