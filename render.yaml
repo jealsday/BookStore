@@ -6,7 +6,7 @@ services:
   - type: web
     name: bookstore-api
     runtime: docker
-    repo: https://github.com/VOTRE_USERNAME/BookStore  # Remplacez par votre repo
+    repo: https://github.com/jealsday/BookStore
     branch: master
     plan: free
     healthCheckPath: /login
