@@ -1,66 +1,369 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
-<head th:replace="~{fragments/layout :: head('BookStore - Inscription')}"></head>
-<body style="background: var(--bg);">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookStore - Inscription</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366F1;
+            --primary-light: #818CF8;
+            --primary-dark: #4F46E5;
+            --text: #1E293B;
+            --text-secondary: #64748B;
+            --bg: #F8FAFC;
+            --white: #FFFFFF;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --danger: #EF4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
 
-<main class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-sm-10 col-md-6 col-lg-4">
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-            <!-- Logo -->
-            <div class="text-center mb-4">
-                <div class="d-inline-flex align-items-center gap-2">
-                    <span style="width:40px; height:40px; background:var(--primary); border-radius:10px; display:inline-flex; align-items:center; justify-content:center; color:white;">
-                        <i class="bi bi-book"></i>
-                    </span>
-                    <span style="font-weight:700; font-size:1.4rem; color:var(--text);">BookStore</span>
-                </div>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: var(--bg);
+        }
+
+        .register-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .register-form-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--white);
+        }
+
+        .register-visual {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 50%, var(--primary-dark) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-visual::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+            max-width: 400px;
+        }
+
+        .visual-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .visual-icon i { font-size: 3rem; }
+
+        .visual-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .visual-content p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .benefits {
+            margin-top: 3rem;
+            text-align: left;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .benefit-icon i { font-size: 1.1rem; }
+
+        .benefit-text h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .benefit-text p {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.4rem;
+        }
+
+        .logo-text {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .form-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            color: var(--text);
+            transition: all 0.2s ease;
+            background: var(--bg);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99,102,241,0.35);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .alert-error {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            border-radius: var(--radius-sm);
+            padding: 0.875rem 1rem;
+            color: #991B1B;
+            font-size: 0.9rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 992px) {
+            .register-visual { display: none; }
+        }
+
+        @media (max-width: 576px) {
+            .register-form-section { padding: 1.5rem; }
+            .form-title { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-container">
+    <div class="register-form-section">
+        <div class="form-wrapper">
+            <div class="logo">
+                <div class="logo-icon"><i class="bi bi-book"></i></div>
+                <span class="logo-text">BookStore</span>
             </div>
 
-            <div class="card p-4">
-                <h2 style="font-size:1.25rem; font-weight:700; margin:0 0 0.25rem; text-align:center;">Créer un compte</h2>
-                <p style="color:var(--text-secondary); font-size:0.85rem; text-align:center; margin-bottom:1.5rem;">
-                    Inscrivez-vous pour consulter la bibliothèque
-                </p>
+            <h2 class="form-title">Creer un compte</h2>
+            <p class="form-subtitle">Rejoignez BookStore et accedez a la bibliotheque</p>
 
-                <!-- Erreur -->
-                <div th:if="${error}" class="mb-3"
-                     style="background:var(--danger-soft); border:1px solid #FECACA; border-radius:var(--radius-sm); padding:0.65rem 0.9rem; font-size:0.85rem; color:#991B1B;">
-                    <i class="bi bi-exclamation-circle me-1"></i>
-                    <span th:text="${error}"></span>
-                </div>
-
-                <form th:action="@{/register}" method="post">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Nom d'utilisateur</label>
-                        <input type="text" id="username" name="username" th:value="${username}" class="form-control"
-                               placeholder="Choisissez un nom d'utilisateur" required autofocus minlength="3">
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Mot de passe</label>
-                        <input type="password" id="password" name="password" class="form-control"
-                               placeholder="Choisissez un mot de passe" required minlength="4">
-                    </div>
-                    <div class="mb-4">
-                        <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
-                               placeholder="Répétez le mot de passe" required minlength="4">
-                    </div>
-                    <button type="submit" class="btn btn-primary-custom w-100 mb-3">
-                        <i class="bi bi-person-plus me-1"></i>Créer mon compte
-                    </button>
-                </form>
-
-                <div class="text-center" style="font-size:0.85rem; color:var(--text-secondary);">
-                    Déjà un compte ?
-                    <a href="/login" style="color:var(--primary); font-weight:600; text-decoration:none;">Se connecter</a>
-                </div>
+            <div th:if="${error}" class="alert-error">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <span th:text="${error}"></span>
             </div>
 
+            <form th:action="@{/register}" method="post">
+                <div class="form-group">
+                    <label class="form-label">Nom d'utilisateur</label>
+                    <input type="text" name="username" th:value="${username}" class="form-input"
+                           placeholder="Choisissez un nom d'utilisateur" required autofocus minlength="3">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" name="password" class="form-input"
+                           placeholder="Minimum 4 caracteres" required minlength="4">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirmer le mot de passe</label>
+                    <input type="password" name="confirmPassword" class="form-input"
+                           placeholder="Repetez le mot de passe" required minlength="4">
+                </div>
+
+                <button type="submit" class="btn-register">
+                    <i class="bi bi-person-plus"></i>
+                    Creer mon compte
+                </button>
+            </form>
+
+            <p class="login-link">
+                Deja un compte ? <a href="/login">Se connecter</a>
+            </p>
         </div>
     </div>
-</main>
 
-<div th:replace="~{fragments/layout :: scripts}"></div>
+    <div class="register-visual">
+        <div class="visual-content">
+            <div class="visual-icon">
+                <i class="bi bi-person-plus"></i>
+            </div>
+            <h1>Rejoignez-nous</h1>
+            <p>Creez votre compte en quelques secondes et profitez de toutes les fonctionnalites.</p>
+
+            <div class="benefits">
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="bi bi-infinity"></i></div>
+                    <div class="benefit-text">
+                        <h4>Acces illimite</h4>
+                        <p>Consultez tout le catalogue de livres</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="bi bi-bookmark-star"></i></div>
+                    <div class="benefit-text">
+                        <h4>Favoris</h4>
+                        <p>Sauvegardez vos livres preferes</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon"><i class="bi bi-lightning"></i></div>
+                    <div class="benefit-text">
+                        <h4>Rapide</h4>
+                        <p>Interface optimisee et reactive</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
