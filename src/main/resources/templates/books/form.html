@@ -8,7 +8,7 @@
 <main class="container py-4">
 
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
+        <div class="col-lg-8 col-md-10">
 
             <!-- Breadcrumb -->
             <nav class="mb-3" style="font-size:0.85rem;">
@@ -34,37 +34,104 @@
 
                     <input type="hidden" th:if="${isEdit}" th:field="*{id}">
 
-                    <!-- Titre -->
-                    <div class="mb-3">
-                        <label for="titre" class="form-label">Titre</label>
-                        <input type="text" id="titre" th:field="*{titre}"
-                               class="form-control" th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid'"
-                               placeholder="Ex : Le Parachutage">
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('titre')}" th:errors="*{titre}">
-                            Erreur
+                    <div class="row">
+                        <!-- Colonne gauche -->
+                        <div class="col-md-6">
+                            <!-- Titre -->
+                            <div class="mb-3">
+                                <label for="titre" class="form-label">Titre <span class="text-danger">*</span></label>
+                                <input type="text" id="titre" th:field="*{titre}"
+                                       class="form-control" th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid'"
+                                       placeholder="Ex : Le Parachutage">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('titre')}" th:errors="*{titre}">Erreur</div>
+                            </div>
+
+                            <!-- Auteur -->
+                            <div class="mb-3">
+                                <label for="auteur" class="form-label">Auteur <span class="text-danger">*</span></label>
+                                <input type="text" id="auteur" th:field="*{auteur}"
+                                       class="form-control" th:classappend="${#fields.hasErrors('auteur')} ? 'is-invalid'"
+                                       placeholder="Ex : Norbert ZONGO">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('auteur')}" th:errors="*{auteur}">Erreur</div>
+                            </div>
+
+                            <!-- Prix -->
+                            <div class="mb-3">
+                                <label for="prix" class="form-label">Prix (CFA) <span class="text-danger">*</span></label>
+                                <input type="number" id="prix" th:field="*{prix}" step="0.01" min="0.01" max="150000"
+                                       class="form-control" th:classappend="${#fields.hasErrors('prix')} ? 'is-invalid'"
+                                       placeholder="Ex : 10000">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('prix')}" th:errors="*{prix}">Erreur</div>
+                            </div>
+
+                            <!-- Categorie -->
+                            <div class="mb-3">
+                                <label for="categorie" class="form-label">Categorie</label>
+                                <select id="categorie" th:field="*{categorie}" class="form-control">
+                                    <option value="">-- Selectionnez --</option>
+                                    <option value="Roman">Roman</option>
+                                    <option value="Litterature africaine">Litterature africaine</option>
+                                    <option value="Classique">Classique</option>
+                                    <option value="Science-fiction">Science-fiction</option>
+                                    <option value="Fantasy">Fantasy</option>
+                                    <option value="Developpement personnel">Developpement personnel</option>
+                                    <option value="Technologie">Technologie</option>
+                                    <option value="Histoire">Histoire</option>
+                                    <option value="Philosophie">Philosophie</option>
+                                    <option value="Biographie">Biographie</option>
+                                    <option value="Jeunesse">Jeunesse</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Colonne droite -->
+                        <div class="col-md-6">
+                            <!-- URL Couverture -->
+                            <div class="mb-3">
+                                <label for="couvertureUrl" class="form-label">URL de la couverture</label>
+                                <input type="url" id="couvertureUrl" th:field="*{couvertureUrl}"
+                                       class="form-control" th:classappend="${#fields.hasErrors('couvertureUrl')} ? 'is-invalid'"
+                                       placeholder="https://exemple.com/image.jpg">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('couvertureUrl')}" th:errors="*{couvertureUrl}">Erreur</div>
+                                <small class="text-muted">Collez l'URL d'une image de couverture</small>
+                            </div>
+
+                            <!-- Apercu de l'image -->
+                            <div class="mb-3" id="coverPreviewContainer" style="display:none;">
+                                <label class="form-label">Apercu</label>
+                                <div style="width:120px; height:180px; border-radius:8px; overflow:hidden; border:1px solid var(--border-light);">
+                                    <img id="coverPreview" src="" alt="Apercu" style="width:100%; height:100%; object-fit:cover;">
+                                </div>
+                            </div>
+
+                            <!-- ISBN -->
+                            <div class="mb-3">
+                                <label for="isbn" class="form-label">ISBN</label>
+                                <input type="text" id="isbn" th:field="*{isbn}"
+                                       class="form-control" th:classappend="${#fields.hasErrors('isbn')} ? 'is-invalid'"
+                                       placeholder="Ex : 978-2-07-036822-8">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}">Erreur</div>
+                            </div>
+
+                            <!-- Annee de publication -->
+                            <div class="mb-3">
+                                <label for="anneePublication" class="form-label">Annee de publication</label>
+                                <input type="number" id="anneePublication" th:field="*{anneePublication}" min="1" max="2100"
+                                       class="form-control" th:classappend="${#fields.hasErrors('anneePublication')} ? 'is-invalid'"
+                                       placeholder="Ex : 1988">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('anneePublication')}" th:errors="*{anneePublication}">Erreur</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Auteur -->
-                    <div class="mb-3">
-                        <label for="auteur" class="form-label">Auteur</label>
-                        <input type="text" id="auteur" th:field="*{auteur}"
-                               class="form-control" th:classappend="${#fields.hasErrors('auteur')} ? 'is-invalid'"
-                               placeholder="Ex : Norbert ZONGO">
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('auteur')}" th:errors="*{auteur}">
-                            Erreur
-                        </div>
-                    </div>
-
-                    <!-- Prix -->
+                    <!-- Description (pleine largeur) -->
                     <div class="mb-4">
-                        <label for="prix" class="form-label">Prix (CFA)</label>
-                        <input type="number" id="prix" th:field="*{prix}" step="0.01" min="0.01" max="150000"
-                               class="form-control" th:classappend="${#fields.hasErrors('prix')} ? 'is-invalid'"
-                               placeholder="Ex : 10000">
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('prix')}" th:errors="*{prix}">
-                            Erreur
-                        </div>
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" th:field="*{description}" rows="4"
+                                  class="form-control" th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                                  placeholder="Resume ou description du livre..."></textarea>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Erreur</div>
                     </div>
 
                     <!-- Actions -->
@@ -87,6 +154,40 @@
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <div th:replace="~{fragments/layout :: scripts}"></div>
+
+<script>
+// Apercu de l'image de couverture
+document.getElementById('couvertureUrl').addEventListener('input', function() {
+    const url = this.value;
+    const preview = document.getElementById('coverPreview');
+    const container = document.getElementById('coverPreviewContainer');
+
+    if (url && url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i)) {
+        preview.src = url;
+        container.style.display = 'block';
+        preview.onerror = function() {
+            container.style.display = 'none';
+        };
+    } else if (url && url.startsWith('http')) {
+        // Essayer quand meme pour les URLs sans extension
+        preview.src = url;
+        container.style.display = 'block';
+        preview.onerror = function() {
+            container.style.display = 'none';
+        };
+    } else {
+        container.style.display = 'none';
+    }
+});
+
+// Afficher l'apercu si une URL existe deja
+window.addEventListener('load', function() {
+    const urlInput = document.getElementById('couvertureUrl');
+    if (urlInput.value) {
+        urlInput.dispatchEvent(new Event('input'));
+    }
+});
+</script>
 
 </body>
 </html>

@@ -21,7 +21,7 @@
         </div>
         <div class="d-flex gap-2 mt-3 mt-md-0">
             <a href="/books/search-advanced" class="btn btn-ghost">
-                <i class="bi bi-funnel me-1"></i>Recherche avancée
+                <i class="bi bi-funnel me-1"></i>Recherche avancee
             </a>
             <a sec:authorize="hasRole('ADMIN')" href="/books/new" class="btn btn-primary-custom">
                 <i class="bi bi-plus-lg me-1"></i>Nouveau livre
@@ -50,66 +50,110 @@
         </div>
     </div>
 
-    <!-- Quick filters (ADMIN only) -->
-    
-    
-    <!-- Search results info -->
-    <div th:if="${keyword != null and !keyword.isEmpty()}" class="d-flex align-items-center justify-content-between mb-3">
-        <span style="font-size:0.85rem; color: var(--text-secondary);">
-            <span th:text="${#lists.size(books)}">0</span> résultat(s) pour
-            "<strong th:text="${keyword}" style="color: var(--text);"></strong>"
-        </span>
-        <a href="/books" class="btn btn-ghost btn-sm">
-            <i class="bi bi-x me-1"></i>Effacer
-        </a>
-    </div>
-
-    <!-- Loading indicator -->
-    <div id="loadingIndicator" class="card p-4 text-center" style="display:none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Chargement...</span>
+    <!-- View toggle -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div th:if="${keyword != null and !keyword.isEmpty()}" class="d-flex align-items-center">
+            <span style="font-size:0.85rem; color: var(--text-secondary);">
+                <span th:text="${#lists.size(books)}">0</span> resultat(s) pour
+                "<strong th:text="${keyword}" style="color: var(--text);"></strong>"
+            </span>
+            <a href="/books" class="btn btn-ghost btn-sm ms-2">
+                <i class="bi bi-x me-1"></i>Effacer
+            </a>
         </div>
-        <p class="mt-3 mb-0" style="color:var(--text-secondary);">Recherche en cours...</p>
+        <div th:if="${keyword == null or keyword.isEmpty()}"></div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-ghost btn-sm active" id="gridViewBtn" onclick="setView('grid')">
+                <i class="bi bi-grid-3x3-gap"></i>
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" id="listViewBtn" onclick="setView('list')">
+                <i class="bi bi-list-ul"></i>
+            </button>
+        </div>
     </div>
 
-    <!-- Books table -->
-    <div id="booksTable" th:if="${!books.isEmpty()}" class="card" style="overflow:hidden;">
+    <!-- Books Grid View -->
+    <div id="gridView" th:if="${!books.isEmpty()}">
+        <div class="row g-4">
+            <div th:each="book : ${books}" class="col-6 col-md-4 col-lg-3">
+                <div class="book-card">
+                    <a th:href="@{/books/{id}(id=${book.id})}" class="book-card-link">
+                        <div class="book-cover">
+                            <img th:if="${book.couvertureUrl != null and !book.couvertureUrl.isEmpty()}"
+                                 th:src="${book.couvertureUrl}"
+                                 th:alt="${book.titre}"
+                                 onerror="this.parentElement.innerHTML='<div class=\'book-cover-placeholder\'><i class=\'bi bi-book\'></i></div>'">
+                            <div th:if="${book.couvertureUrl == null or book.couvertureUrl.isEmpty()}" class="book-cover-placeholder">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <span th:if="${book.categorie != null and !book.categorie.isEmpty()}" class="book-category-badge" th:text="${book.categorie}">Categorie</span>
+                        </div>
+                        <div class="book-info">
+                            <h3 class="book-title" th:text="${book.titre}">Titre</h3>
+                            <p class="book-author" th:text="${book.auteur}">Auteur</p>
+                            <div class="book-meta">
+                                <span class="book-price" th:text="${#numbers.formatDecimal(book.prix, 0, 'COMMA', 0, 'POINT')} + ' CFA'">0 CFA</span>
+                                <span th:if="${book.anneePublication != null}" class="book-year" th:text="${book.anneePublication}">2024</span>
+                            </div>
+                        </div>
+                    </a>
+                    <div sec:authorize="hasRole('ADMIN')" class="book-actions">
+                        <a th:href="@{/books/edit/{id}(id=${book.id})}" class="action-btn btn-soft-warning" title="Modifier">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a th:href="@{/books/delete/{id}(id=${book.id})}" class="action-btn btn-soft-danger" title="Supprimer"
+                           onclick="return confirm('Voulez-vous vraiment supprimer ce livre ?');">
+                            <i class="bi bi-trash3"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Books List View (hidden by default) -->
+    <div id="listView" th:if="${!books.isEmpty()}" class="card" style="overflow:hidden; display:none;">
         <div class="table-responsive">
             <table class="table-clean">
                 <thead>
                     <tr>
-                        <th style="width:50px;">#</th>
+                        <th style="width:60px;">Couv.</th>
                         <th>Titre</th>
                         <th>Auteur</th>
+                        <th>Categorie</th>
                         <th>Prix</th>
                         <th style="width:140px; text-align:center;">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="booksTableBody">
-                    <tr th:each="book, iter : ${books}">
-                        <td style="color: var(--text-light); font-weight:500;" th:text="${iter.index + 1}">1</td>
+                <tbody>
+                    <tr th:each="book : ${books}">
+                        <td>
+                            <div style="width:40px; height:60px; border-radius:4px; overflow:hidden; background:var(--bg-secondary);">
+                                <img th:if="${book.couvertureUrl != null and !book.couvertureUrl.isEmpty()}"
+                                     th:src="${book.couvertureUrl}" th:alt="${book.titre}"
+                                     style="width:100%; height:100%; object-fit:cover;"
+                                     onerror="this.style.display='none'">
+                            </div>
+                        </td>
                         <td>
                             <a th:href="@{/books/{id}(id=${book.id})}" class="book-title" th:text="${book.titre}">Titre</a>
                         </td>
                         <td style="color: var(--text-secondary);" th:text="${book.auteur}">Auteur</td>
                         <td>
+                            <span th:if="${book.categorie != null}" class="badge bg-light text-dark" th:text="${book.categorie}">Cat</span>
+                        </td>
+                        <td>
                             <span class="badge-price" th:text="${#numbers.formatDecimal(book.prix, 0, 'COMMA', 0, 'POINT')} + ' CFA'">0 CFA</span>
                         </td>
                         <td>
                             <div class="d-flex justify-content-center gap-1 flex-nowrap">
-                                <a th:href="@{/books/{id}(id=${book.id})}"
-                                   class="action-btn btn-soft-primary" title="Voir">
+                                <a th:href="@{/books/{id}(id=${book.id})}" class="action-btn btn-soft-primary" title="Voir">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a sec:authorize="hasRole('ADMIN')"
-                                   th:href="@{/books/edit/{id}(id=${book.id})}"
-                                   class="action-btn btn-soft-warning" title="Modifier">
+                                <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/edit/{id}(id=${book.id})}" class="action-btn btn-soft-warning" title="Modifier">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a sec:authorize="hasRole('ADMIN')"
-                                   th:href="@{/books/delete/{id}(id=${book.id})}"
-                                   class="action-btn btn-soft-danger"
-                                   title="Supprimer"
+                                <a sec:authorize="hasRole('ADMIN')" th:href="@{/books/delete/{id}(id=${book.id})}" class="action-btn btn-soft-danger" title="Supprimer"
                                    onclick="return confirm('Voulez-vous vraiment supprimer ce livre ?');">
                                     <i class="bi bi-trash3"></i>
                                 </a>
@@ -126,10 +170,10 @@
         <div class="empty-state">
             <div class="empty-icon"><i class="bi bi-journal-x"></i></div>
             <h3 th:if="${keyword == null or keyword.isEmpty()}">Aucun livre pour le moment</h3>
-            <h3 th:if="${keyword != null and !keyword.isEmpty()}">Aucun résultat</h3>
+            <h3 th:if="${keyword != null and !keyword.isEmpty()}">Aucun resultat</h3>
             <p th:if="${keyword == null or keyword.isEmpty()}" sec:authorize="hasRole('ADMIN')">Ajoutez votre premier livre pour commencer.</p>
             <p th:if="${keyword == null or keyword.isEmpty()}" sec:authorize="hasRole('USER') and !hasRole('ADMIN')">Aucun livre disponible pour le moment.</p>
-            <p th:if="${keyword != null and !keyword.isEmpty()}">Essayez avec un autre mot-clé.</p>
+            <p th:if="${keyword != null and !keyword.isEmpty()}">Essayez avec un autre mot-cle.</p>
             <a sec:authorize="hasRole('ADMIN')" th:if="${keyword == null or keyword.isEmpty()}" href="/books/new" class="btn btn-primary-custom mt-2">
                 <i class="bi bi-plus-lg me-1"></i>Ajouter un livre
             </a>
@@ -144,173 +188,146 @@
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <div th:replace="~{fragments/layout :: scripts}"></div>
 
+<style>
+/* Book Card Styles */
+.book-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+.book-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+.book-cover {
+    position: relative;
+    width: 100%;
+    padding-top: 150%;
+    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+    overflow: hidden;
+}
+.book-cover img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.book-cover-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 3rem;
+}
+.book-category-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.book-info {
+    padding: 12px;
+}
+.book-info .book-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+}
+.book-info .book-author {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.book-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.book-price {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+.book-year {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.book-actions {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.book-card:hover .book-actions {
+    opacity: 1;
+}
+</style>
+
 <script>
-// Fonctions de filtrage dynamique (utilise l'API REST)
-function applyFilters() {
-    const minPrice = document.getElementById('minPrice').value;
-    const maxPrice = document.getElementById('maxPrice').value;
-    const titre = document.getElementById('filterTitre').value;
-    const auteur = document.getElementById('filterAuteur').value;
+function setView(view) {
+    const gridView = document.getElementById('gridView');
+    const listView = document.getElementById('listView');
+    const gridBtn = document.getElementById('gridViewBtn');
+    const listBtn = document.getElementById('listViewBtn');
 
-    // Afficher le loader
-    showLoading();
-
-    let apiUrl = '/api/books/all';
-    let params = new URLSearchParams();
-
-    // Recherche combinée titre ET auteur
-    if (titre && auteur) {
-        apiUrl = '/api/books/search/titre-auteur';
-        params.append('titre', titre);
-        params.append('auteur', auteur);
+    if (view === 'grid') {
+        gridView.style.display = 'block';
+        listView.style.display = 'none';
+        gridBtn.classList.add('active');
+        listBtn.classList.remove('active');
+    } else {
+        gridView.style.display = 'none';
+        listView.style.display = 'block';
+        gridBtn.classList.remove('active');
+        listBtn.classList.add('active');
     }
-    // Recherche par titre seulement
-    else if (titre) {
-        apiUrl = '/api/books/search/titre';
-        params.append('titre', titre);
+    localStorage.setItem('bookViewMode', view);
+}
+
+// Restaurer la preference
+document.addEventListener('DOMContentLoaded', function() {
+    const savedView = localStorage.getItem('bookViewMode');
+    if (savedView) {
+        setView(savedView);
     }
-    // Recherche par auteur seulement
-    else if (auteur) {
-        apiUrl = '/api/books/search/auteur';
-        params.append('auteur', auteur);
-    }
-    // Recherche par prix minimum
-    else if (minPrice && !maxPrice) {
-        apiUrl = '/api/books/search/min-price';
-        params.append('prix', minPrice);
-    }
-    // Recherche par prix maximum
-    else if (maxPrice && !minPrice) {
-        apiUrl = '/api/books/search/max-price';
-        params.append('prix', maxPrice);
-    }
-
-    const fullUrl = params.toString() ? `${apiUrl}?${params.toString()}` : apiUrl;
-
-    fetch(fullUrl)
-        .then(response => response.json())
-        .then(data => {
-            let books = Array.isArray(data) ? data : (data.content || []);
-            
-            // Filtrer par prix si les deux limites sont définies
-            if (minPrice && maxPrice) {
-                books = books.filter(book => 
-                    book.prix >= parseFloat(minPrice) && book.prix <= parseFloat(maxPrice)
-                );
-            }
-
-            hideLoading();
-            displayBooks(books);
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            hideLoading();
-            alert('Erreur lors de la recherche. Veuillez réessayer.');
-        });
-}
-
-function clearFilters() {
-    document.getElementById('minPrice').value = '';
-    document.getElementById('maxPrice').value = '';
-    document.getElementById('filterTitre').value = '';
-    document.getElementById('filterAuteur').value = '';
-    window.location.href = '/books';
-}
-
-function displayBooks(books) {
-    const tbody = document.getElementById('booksTableBody');
-    const table = document.getElementById('booksTable');
-    const emptyState = document.getElementById('emptyState');
-
-    if (books.length === 0) {
-        if (table) table.style.display = 'none';
-        if (!emptyState) {
-            const mainContainer = document.querySelector('main .container');
-            const emptyDiv = document.createElement('div');
-            emptyDiv.id = 'emptyState';
-            emptyDiv.className = 'card';
-            emptyDiv.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon"><i class="bi bi-journal-x"></i></div>
-                    <h3>Aucun résultat</h3>
-                    <p>Essayez avec d'autres critères de recherche.</p>
-                    <button onclick="clearFilters()" class="btn btn-ghost mt-2">
-                        <i class="bi bi-arrow-left me-1"></i>Réinitialiser
-                    </button>
-                </div>
-            `;
-            mainContainer.appendChild(emptyDiv);
-        } else {
-            emptyState.style.display = 'block';
-        }
-        return;
-    }
-
-    if (emptyState) emptyState.style.display = 'none';
-    if (table) table.style.display = 'block';
-
-    tbody.innerHTML = books.map((book, index) => `
-        <tr>
-            <td style="color: var(--text-light); font-weight:500;">${index + 1}</td>
-            <td>
-                <a href="/books/${book.id}" class="book-title">${escapeHtml(book.titre)}</a>
-            </td>
-            <td style="color: var(--text-secondary);">${escapeHtml(book.auteur)}</td>
-            <td>
-                <span class="badge-price">${formatPrice(book.prix)} CFA</span>
-            </td>
-            <td>
-                <div class="d-flex justify-content-center gap-1 flex-nowrap">
-                    <a href="/books/${book.id}" class="action-btn btn-soft-primary" title="Voir">
-                        <i class="bi bi-eye"></i>
-                    </a>
-                    <a href="/books/edit/${book.id}" class="action-btn btn-soft-warning" title="Modifier">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <a href="/books/delete/${book.id}" 
-                       class="action-btn btn-soft-danger" 
-                       title="Supprimer"
-                       onclick="return confirm('Voulez-vous vraiment supprimer ce livre ?');">
-                        <i class="bi bi-trash3"></i>
-                    </a>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function showLoading() {
-    const loader = document.getElementById('loadingIndicator');
-    const table = document.getElementById('booksTable');
-    const emptyState = document.getElementById('emptyState');
-    
-    if (table) table.style.display = 'none';
-    if (emptyState) emptyState.style.display = 'none';
-    if (loader) loader.style.display = 'block';
-}
-
-function hideLoading() {
-    const loader = document.getElementById('loadingIndicator');
-    if (loader) loader.style.display = 'none';
-}
-
-function formatPrice(price) {
-    return new Intl.NumberFormat('fr-FR', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(price);
-}
-
-function escapeHtml(text) {
-    const map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-}
+});
 </script>
 
 </body>
