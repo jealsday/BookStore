@@ -7,7 +7,7 @@ services:
     name: bookstore-api
     runtime: docker
     repo: https://github.com/VOTRE_USERNAME/BookStore  # Remplacez par votre repo
-    branch: master
+    branch: main
     plan: free
     healthCheckPath: /login
     envVars:
