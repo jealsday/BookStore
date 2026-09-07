@@ -1,0 +1,36 @@
+# Render Blueprint - Deployment Configuration
+# https://render.com/docs/blueprint-spec
+
+services:
+  # Web Service - Spring Boot Application
+  - type: web
+    name: bookstore-api
+    runtime: docker
+    repo: https://github.com/VOTRE_USERNAME/BookStore  # Remplacez par votre repo
+    branch: master
+    plan: free
+    healthCheckPath: /login
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: bookstore-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: bookstore-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: bookstore-db
+          property: password
+      - key: JAVA_TOOL_OPTIONS
+        value: "-Xmx256m -Xms128m"
+
+databases:
+  # PostgreSQL Database
+  - name: bookstore-db
+    plan: free
+    databaseName: bookstore
+    user: bookstore_user
