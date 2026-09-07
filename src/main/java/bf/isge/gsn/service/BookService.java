@@ -86,11 +86,16 @@ public class BookService {
     public Book updateBook(Long id, Book bookDetails) {
         log.info("Mise à jour du livre avec l'ID: {}", id);
         Book book = getBookById(id);
-        
+
         book.setTitre(bookDetails.getTitre());
         book.setAuteur(bookDetails.getAuteur());
         book.setPrix(bookDetails.getPrix());
-        
+        book.setCouvertureUrl(bookDetails.getCouvertureUrl());
+        book.setDescription(bookDetails.getDescription());
+        book.setCategorie(bookDetails.getCategorie());
+        book.setIsbn(bookDetails.getIsbn());
+        book.setAnneePublication(bookDetails.getAnneePublication());
+
         Book updatedBook = bookRepository.save(book);
         log.info("Livre mis à jour avec succès: ID={}", id);
         return updatedBook;
@@ -107,21 +112,32 @@ public class BookService {
     public Book partialUpdateBook(Long id, Book bookDetails) {
         log.info("Mise à jour partielle du livre avec l'ID: {}", id);
         Book book = getBookById(id);
-        
-        // Mise à jour seulement si le champ n'est pas null et n'est pas vide (pour les chaînes)
+
         if (bookDetails.getTitre() != null && !bookDetails.getTitre().isBlank()) {
-            log.debug("Mise à jour du titre: {} → {}", book.getTitre(), bookDetails.getTitre());
             book.setTitre(bookDetails.getTitre());
         }
         if (bookDetails.getAuteur() != null && !bookDetails.getAuteur().isBlank()) {
-            log.debug("Mise à jour de l'auteur: {} → {}", book.getAuteur(), bookDetails.getAuteur());
             book.setAuteur(bookDetails.getAuteur());
         }
         if (bookDetails.getPrix() != null && bookDetails.getPrix().compareTo(BigDecimal.ZERO) > 0) {
-            log.debug("Mise à jour du prix: {} → {}", book.getPrix(), bookDetails.getPrix());
             book.setPrix(bookDetails.getPrix());
         }
-        
+        if (bookDetails.getCouvertureUrl() != null) {
+            book.setCouvertureUrl(bookDetails.getCouvertureUrl());
+        }
+        if (bookDetails.getDescription() != null) {
+            book.setDescription(bookDetails.getDescription());
+        }
+        if (bookDetails.getCategorie() != null) {
+            book.setCategorie(bookDetails.getCategorie());
+        }
+        if (bookDetails.getIsbn() != null) {
+            book.setIsbn(bookDetails.getIsbn());
+        }
+        if (bookDetails.getAnneePublication() != null) {
+            book.setAnneePublication(bookDetails.getAnneePublication());
+        }
+
         Book updatedBook = bookRepository.save(book);
         log.info("Livre mis à jour partiellement avec succès: ID={}", id);
         return updatedBook;
